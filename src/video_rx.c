@@ -1,17 +1,39 @@
 #include "video_rx.h"
 #include <avr/io.h>
 
+// RTC6715 register addresses
+#define SYN_REG_A 0x00
+#define SYN_REG_B 0x01
+
 /* This function is used internally to calculate the N
  * and A parameters for the RX chip, as specified in
  * the datasheet. The parameters are combined into a
- * value that can be sent over SPI. Due to the way the
- * frequency is set, the smallest change step is 2 Mhz.
+ * value that fits into the Synthesizer Register A.
  */
 uint32_t _freq_to_data(uint16_t freq) {
 	uint16_t f_lo_half = (freq - 479) >> 1;
 	uint32_t N = f_lo_half / 32;
 	uint8_t A = f_lo_half % 32;
 	return (N << 7) | A;
+}
+
+/* This function is used internally to write to the
+ * RTC6715's configuration registers.
+ */
+void _spi_write(uint32_t data, uint8_t address) {
+	// Combine the data with the RW bit and the address.
+	data = (data << 1) + 1; 		// Set RW bit to W
+	data = (data << 4) + address; 	// Set register address
+
+	PORTB &= ~(1 << DDB2);			// CS low
+	// Send data in four packets of 8 bits.
+	for (int i = 0; i < 4; i++) {
+		SPDR = data & 0xFF;
+		data = data >> 8;
+		/* Wait for transmission complete */
+		while(!(SPSR & (1<<SPIF)));
+	}
+	PORTB |= 1 << DDB2;				// CS high
 }
 
 /* This function initializes the output pins for
@@ -53,17 +75,7 @@ void video_rx_init_adc() {
 void video_rx_set_frequency(uint16_t freq) {
 	// Combine the frequency data with the RW bit and the address.
     uint32_t data = _freq_to_data(freq);
-	data = (data << 1) + 1; 	// Write
-	data = (data << 4) + 0x1; 	// Synthesizer Register B
-
-	PORTB = ~(1 << DDB2);
-	for (int i = 0; i < 4; i++) {
-		SPDR = data & 0xFF;
-		data = data >> 8;
-		/* Wait for transmission complete */
-		while(!(SPSR & (1<<SPIF)));
-	}
-	PORTB = 1 << DDB2;
+	_spi_write(data, SYN_REG_B);
 }
 
 /* This function reads the ADC and converts the value to
