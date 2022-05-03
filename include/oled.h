@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-uint8_t _i2c_start(void);
-void _i2c_stop(void);
+uint8_t i2c_start(void);
+void i2c_stop(void);
 uint8_t oled_init(void);
 uint8_t oled_raw_write(uint8_t data);
 uint8_t oled_raw_set_position(uint8_t x, uint8_t y);

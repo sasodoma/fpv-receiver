@@ -86,12 +86,12 @@ uint8_t _send_command(uint8_t command) {
     return 0;
 }
 
-/* This function is used internally to begin an I2C transaction.
+/* This function is used to begin an I2C transaction.
  * It sends a START condition, waits for an ACK, then it sends
  * the device address and waits for another ACK. A return value
  * of 0 means success, other values indicate an error.
  */
-uint8_t _i2c_start(void) {
+uint8_t i2c_start(void) {
     TWCR = TWCR_CONFIG | (1 << TWSTA);  // Send START
 	
 	if(_wait_TWCR(TWINT, 0x08, 1)) return 1;
@@ -104,12 +104,12 @@ uint8_t _i2c_start(void) {
     return 0;
 }
 
-/* This function is used internally to end an I2C transaction.
+/* This function is used to end an I2C transaction.
  * It sends a STOP condition. There is not ACK for the STOP
  * condition, so the function simply waits for the interface
  * to finish transmitting and then it returns.
  */
-void _i2c_stop(void) {
+void i2c_stop(void) {
     TWCR = TWCR_CONFIG | (1 << TWSTO);  // Send STOP
 
 	_wait_TWCR(TWSTO, 0, 0);	// We don't care about the return value
@@ -123,7 +123,7 @@ uint8_t oled_init(){
     TWBR = 16;		// Bit rate register, target is ~100 kHz
 	TWSR = 0;  		// Set prescaler to 1
 	
-    if (_i2c_start()) return 1;
+    if (i2c_start()) return 1;
 
     if(_send_command(0xD9)) return 2; // Set Pre-charge Period
 	if(_send_command(0xF1)) return 2; // -Phase 2: 15 DCLK, Phase 1: 1 DCLK
@@ -143,12 +143,18 @@ uint8_t oled_init(){
 	if(_send_command(0x20)) return 2; // Set Memory Addressing Mode
 	if(_send_command(0x00)) return 2; // -Horizontal
 
-    _i2c_stop();
+    i2c_stop();
 
     return 0;
 
 }
 
+/* This function is used to send a singe byte of display data
+ * to the display. It can be used to send data for example in
+ * a for loop, without calling i2c_start() and i2c_stop()
+ * between each byte. Both "oled_raw" functions require the
+ * START and STOP commands to be sent seperately.
+ */
 uint8_t oled_raw_write(uint8_t data) {
     TWDR = 0b11000000;
 	TWCR = TWCR_CONFIG;
@@ -163,6 +169,11 @@ uint8_t oled_raw_write(uint8_t data) {
     return 0;
 }
 
+/* This function sets the position at which new data will
+ * be written. X can go up to 127 and y can go up to 7.
+ * Both "oled_raw" functions require the START and STOP 
+ * commands to be sent seperately.
+ */
 uint8_t oled_raw_set_position(uint8_t x, uint8_t y) {
 	if(_send_command(0x21)) return 2; // Set column address
 	if(_send_command(x)) return 2; // Start at x
@@ -173,8 +184,12 @@ uint8_t oled_raw_set_position(uint8_t x, uint8_t y) {
 	return 0;
 }
 
+/* This function writes a fixed length number to the display
+ * at the specified coordinates. The number is converted to
+ * decimal and padded with zeroes to fit the specified length.
+ */
 uint8_t oled_write_num_fixed(uint32_t n, uint8_t len, uint8_t x, uint8_t y, uint8_t invert) {
-	if (_i2c_start()) return 1;
+	if (i2c_start()) return 1;
 
 	if (oled_raw_set_position(x, y)) return 2;
 
@@ -205,20 +220,20 @@ uint8_t oled_write_num_fixed(uint32_t n, uint8_t len, uint8_t x, uint8_t y, uint
         i++;
     }
 
-    _i2c_stop();
+    i2c_stop();
 
 	return 0;
 }
 
+/* This function writes a string of characters to the display
+ * at the specified coordintes. The only valid characters in 
+ * the input string are numeric and each digit represents 
+ * a character in the lookup table.
+ */
 uint8_t oled_write_text(char *text, uint8_t x, uint8_t y, uint8_t invert) {
-	if (_i2c_start()) return 1;
+	if (i2c_start()) return 1;
 
-	if(_send_command(0x21)) return 2; // Set column address
-	if(_send_command(x)) return 2; // Start at x
-	if(_send_command(0xff)) return 2; // End at 127
-	if(_send_command(0x22)) return 2; // Set page address
-	if(_send_command(y)) return 2; // Start at y
-	if(_send_command(0x07)) return 2; // End at 7
+	if (oled_raw_set_position(x, y)) return 2;
 
 	TWDR = 0b01000000;
 	TWCR = TWCR_CONFIG;
@@ -237,20 +252,20 @@ uint8_t oled_write_text(char *text, uint8_t x, uint8_t y, uint8_t invert) {
 		}
 	}
 
-    _i2c_stop();
+    i2c_stop();
 
 	return 0;
 }
 
+/* This function writes a string of symbols to the display
+ * at the specified coordintes. The only valid characters in 
+ * the input string are numeric 0-5 and each digit represents 
+ * a symbol in the lookup table.
+ */
 uint8_t oled_write_symbol(char *symbols, uint8_t x, uint8_t y, uint8_t invert) {
-	if (_i2c_start()) return 1;
+	if (i2c_start()) return 1;
 
-	if(_send_command(0x21)) return 2; // Set column address
-	if(_send_command(x)) return 2; // Start at x
-	if(_send_command(0xff)) return 2; // End at 127
-	if(_send_command(0x22)) return 2; // Set page address
-	if(_send_command(y)) return 2; // Start at y
-	if(_send_command(0x07)) return 2; // End at 7
+	if (oled_raw_set_position(x, y)) return 2;
 
 	TWDR = 0b01000000;
 	TWCR = TWCR_CONFIG;
@@ -269,7 +284,7 @@ uint8_t oled_write_symbol(char *symbols, uint8_t x, uint8_t y, uint8_t invert) {
 		}
 	}
 
-    _i2c_stop();
+    i2c_stop();
 
 	return 0;
 }

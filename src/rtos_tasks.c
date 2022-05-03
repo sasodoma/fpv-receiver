@@ -92,7 +92,7 @@ void init_oled() {
 		while(1);
 	}
 
-    if (_i2c_start()) {
+    if (i2c_start()) {
 		while(1);
 	}
 
@@ -108,7 +108,7 @@ void init_oled() {
         oled_raw_write(0xFF);
     }
 
-	_i2c_stop();
+	i2c_stop();
 
     // Write the top row text
     oled_write_num_fixed(freq, 4, 1, 0, 1);
