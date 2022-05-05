@@ -9,6 +9,18 @@
  * and A parameters for the RX chip, as specified in
  * the datasheet. The parameters are combined into a
  * value that fits into the Synthesizer Register A.
+ * Due to the way the receiver is configured, it is
+ * only possible to change the frequency in steps of
+ * 2 MHz. Theoretically this could be fixed by writing
+ * a value of 0x10 to SYN_REG_A, but due to a glitch
+ * in the receiver chip you can only change the A
+ * register after about 27 ms after setting the B
+ * register. Writing sooner than this overwrites the
+ * B register as well, and writing to the B register
+ * after the A register simply resets the A register
+ * to the default value of 0x08. To avoid the long
+ * wait between writes, this code does not attempt
+ * to change the SYN_REG_A value.
  */
 uint32_t _freq_to_data(uint16_t freq) {
 	uint16_t f_lo_half = (freq - 479) >> 1;
