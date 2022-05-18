@@ -1,5 +1,6 @@
 #include "video_rx.h"
 #include <avr/io.h>
+#include "pins.h"
 
 // RTC6715 register addresses
 #define SYN_REG_A 0x00
@@ -37,7 +38,7 @@ void _spi_write(uint32_t data, uint8_t address) {
 	data = (data << 1) + 1; 		// Set RW bit to W
 	data = (data << 4) + address; 	// Set register address
 
-	PORTB &= ~(1 << DDB2);			// CS low
+	setGpioLow(VIDEO_RX_CS);		// CS low
 	// Send data in four packets of 8 bits.
 	for (int i = 0; i < 4; i++) {
 		SPDR = data & 0xFF;
@@ -45,7 +46,7 @@ void _spi_write(uint32_t data, uint8_t address) {
 		/* Wait for transmission complete */
 		while(!(SPSR & (1<<SPIF)));
 	}
-	PORTB |= 1 << DDB2;				// CS high
+	setGpioHigh(VIDEO_RX_CS);		// CS high
 }
 
 /* This function initializes the output pins for
@@ -59,8 +60,8 @@ void video_rx_init_spi() {
 	DDRB = (1 << DDB2) | (1 << DDB3) | (1 << DDB5);
 	// Enable SPI, Master mode, clock /16, LSB first
 	SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0) | (1 << DORD);
-	// SS High
-	PORTB = 1 << DDB2;
+	// CS High
+	setGpioHigh(VIDEO_RX_CS);
 }
 
 /* This function initializes the ADC and starts

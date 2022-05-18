@@ -19,6 +19,6 @@
 
 // Pin definitions
 #define LED_BUILTIN D,1
-
+#define VIDEO_RX_CS B,2
 
 #endif
