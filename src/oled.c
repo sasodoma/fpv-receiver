@@ -118,10 +118,10 @@ void i2c_stop(void) {
 /* This function initializes the I2C (2-wire) interface and
  * configures the OLED display.
  */
-uint8_t oled_init(){
+uint8_t oled_init() {
     // I2C
-    TWBR = 16;        // Bit rate register, target is ~100 kHz
-    TWSR = 0;          // Set prescaler to 1
+    TWBR = 16;          // Bit rate register, target is ~100 kHz
+    TWSR = 0;           // Set prescaler to 1
     
     if (i2c_start()) return 1;
 
