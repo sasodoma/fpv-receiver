@@ -113,8 +113,8 @@ void init_oled() {
     // Write the top row text
     oled_write_num_fixed(freq, 4, 1, 0, 1);
     oled_write_num_fixed(rssi, 2, 128-6*2, 0, 1);
-    oled_write_text("649", 27, 0, 1);
-    oled_write_text("7885", 89, 0, 1);
+    oled_write_text(OLED_M OLED_H OLED_z, 27, 0, 1);
+    oled_write_text(OLED_R OLED_S OLED_S OLED_I, 89, 0, 1);
 
     // Write the channel numbers
     for (int i = 1; i < 9; i++) {
@@ -122,7 +122,7 @@ void init_oled() {
     }
 
     // Write the band letters
-    char *channel_letters[] = {"0","1","2","3","7",0};
+    char *channel_letters[] = {OLED_A,OLED_B,OLED_E,OLED_F,OLED_R,0};
     for (int i = 0; channel_letters[i] != 0; i++) {
         oled_write_text(channel_letters[i], 12, 2+i, 0);
     }
@@ -131,15 +131,15 @@ void init_oled() {
     for (int x = 0; x < 8; x++) {
         for (int y = 0; y < 5; y++) {
             if (x == 2 && y == 4) {
-                oled_write_symbol("1", 24 + 12*x, 2 + y, 0);
+                oled_write_symbol(OLED_LARGE_DOT, 24 + 12*x, 2 + y, 0);
                 continue;
             }
-            oled_write_symbol("0", 24 + 12*x, 2 + y, 0);
+            oled_write_symbol(OLED_SMALL_DOT, 24 + 12*x, 2 + y, 0);
         }
     }
 
     // Write the arrows
-    char *arrow_symbols[] = {"2","3","4","5",0};
+    char *arrow_symbols[] = {OLED_LEFT,OLED_RIGHT,OLED_UP,OLED_DOWN,0};
     for (int i = 0; arrow_symbols[i] != 0; i++) {
         oled_write_symbol(arrow_symbols[i], 6 + 36*i, 7, 0);
     }
@@ -151,8 +151,8 @@ void driver_oled() {
     static uint8_t old_rssi = 0;
     if (rx_band != old_rx_band || rx_channel != old_rx_channel) {
         oled_write_num_fixed(freq, 4, 1, 0, 1);
-        oled_write_symbol("0", 24 + 12*old_rx_channel, 2 + old_rx_band, 0);
-        oled_write_symbol("1", 24 + 12*rx_channel, 2 + rx_band, 0);
+        oled_write_symbol(OLED_SMALL_DOT, 24 + 12*old_rx_channel, 2 + old_rx_band, 0);
+        oled_write_symbol(OLED_LARGE_DOT, 24 + 12*rx_channel, 2 + rx_band, 0);
         old_rx_band = rx_band;
         old_rx_channel = rx_channel;
     }
