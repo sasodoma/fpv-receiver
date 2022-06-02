@@ -32,25 +32,25 @@ const uint8_t numbers_lookup[][6] = {
 };
 
 const uint8_t letters_lookup[][6] = {
-	{0b01111100, 0b00001010, 0b00001010, 0b00001010, 0b01111100, 0}, // A - 0
-	{0b01111110, 0b01001010, 0b01001010, 0b01001010, 0b00110100, 0}, // B - 1
-	{0b01111110, 0b01001010, 0b01001010, 0b01001010, 0b01000010, 0}, // E - 2
-	{0b01111110, 0b00001010, 0b00001010, 0b00001010, 0b00000010, 0}, // F - 3
-	{0b01111110, 0b00001000, 0b00001000, 0b00001000, 0b01111110, 0}, // H - 4
+    {0b01111100, 0b00001010, 0b00001010, 0b00001010, 0b01111100, 0}, // A - 0
+    {0b01111110, 0b01001010, 0b01001010, 0b01001010, 0b00110100, 0}, // B - 1
+    {0b01111110, 0b01001010, 0b01001010, 0b01001010, 0b01000010, 0}, // E - 2
+    {0b01111110, 0b00001010, 0b00001010, 0b00001010, 0b00000010, 0}, // F - 3
+    {0b01111110, 0b00001000, 0b00001000, 0b00001000, 0b01111110, 0}, // H - 4
     {0b00000000, 0b01000010, 0b01111110, 0b01000010, 0b00000000, 0}, // I - 5
-	{0b01111110, 0b00000100, 0b00001000, 0b00000100, 0b01111110, 0}, // M - 6
+    {0b01111110, 0b00000100, 0b00001000, 0b00000100, 0b01111110, 0}, // M - 6
     {0b01111110, 0b00001010, 0b00001010, 0b00001010, 0b01110100, 0}, // R - 7
     {0b01000100, 0b01001010, 0b01001010, 0b01001010, 0b00110010, 0}, // S - 8
-	{0b01000100, 0b01100100, 0b01010100, 0b01001100, 0b01000100, 0}  // z - 9
+    {0b01000100, 0b01100100, 0b01010100, 0b01001100, 0b01000100, 0}  // z - 9
 };
 
 const uint8_t symbols_lookup[][6] = {
-	{0b00000000, 0b00000000, 0b00011000, 0b00011000, 0b00000000, 0}, // small dot   - 0
-	{0b00000000, 0b00111100, 0b00111100, 0b00111100, 0b00111100, 0}, // large dot   - 1
-	{0b00001000, 0b00011100, 0b00101010, 0b00001000, 0b00001000, 8}, // left arrow  - 2
-	{0b00001000, 0b00001000, 0b00001000, 0b00101010, 0b00011100, 8}, // right arrow - 3
-	{0b00001000, 0b00000100, 0b01111110, 0b00000100, 0b00001000, 0}, // up arrow    - 4
-	{0b00010000, 0b00100000, 0b01111110, 0b00100000, 0b00010000, 0}  // down arrow  - 5
+    {0b00000000, 0b00000000, 0b00011000, 0b00011000, 0b00000000, 0}, // small dot   - 0
+    {0b00000000, 0b00111100, 0b00111100, 0b00111100, 0b00111100, 0}, // large dot   - 1
+    {0b00001000, 0b00011100, 0b00101010, 0b00001000, 0b00001000, 8}, // left arrow  - 2
+    {0b00001000, 0b00001000, 0b00001000, 0b00101010, 0b00011100, 8}, // right arrow - 3
+    {0b00001000, 0b00000100, 0b01111110, 0b00000100, 0b00001000, 0}, // up arrow    - 4
+    {0b00010000, 0b00100000, 0b01111110, 0b00100000, 0b00010000, 0}  // down arrow  - 5
 };
 
 
@@ -60,12 +60,12 @@ const uint8_t symbols_lookup[][6] = {
  * value of 0 means success, other values indicate an error.
  */
 uint8_t _wait_TWCR(uint8_t cr_bit, uint8_t sr_value, uint8_t negate) {
-	int timeout = 4000;
+    int timeout = 4000;
     while ((TWCR & (1 << cr_bit)) ? !negate : negate) {
-		if (!(timeout--)) return 1; 
-	}
-	if (!((TWSR & TWSR_TWS_MASK) == sr_value)) return 2;
-	return 0;
+        if (!(timeout--)) return 1; 
+    }
+    if (!((TWSR & TWSR_TWS_MASK) == sr_value)) return 2;
+    return 0;
 }
 
 /* This function is used internally to send a single command to
@@ -73,15 +73,15 @@ uint8_t _wait_TWCR(uint8_t cr_bit, uint8_t sr_value, uint8_t negate) {
  * values indicate an error.
  */
 uint8_t _send_command(uint8_t command) {
-	TWDR = 0b10000000; 	// Indicate next byte will be a command
-	TWCR = TWCR_CONFIG; // Clears the interrupt flag and starts the transmission
+    TWDR = 0b10000000;     // Indicate next byte will be a command
+    TWCR = TWCR_CONFIG; // Clears the interrupt flag and starts the transmission
 
-	if(_wait_TWCR(TWINT, 0x28, 1)) return 1;
+    if(_wait_TWCR(TWINT, 0x28, 1)) return 1;
 
-	TWDR = command;		// Load the command
-	TWCR = TWCR_CONFIG; // Clears the interrupt flag and starts the transmission
+    TWDR = command;        // Load the command
+    TWCR = TWCR_CONFIG; // Clears the interrupt flag and starts the transmission
 
-	if(_wait_TWCR(TWINT, 0x28, 1)) return 2;
+    if(_wait_TWCR(TWINT, 0x28, 1)) return 2;
 
     return 0;
 }
@@ -93,13 +93,13 @@ uint8_t _send_command(uint8_t command) {
  */
 uint8_t i2c_start(void) {
     TWCR = TWCR_CONFIG | (1 << TWSTA);  // Send START
-	
-	if(_wait_TWCR(TWINT, 0x08, 1)) return 1;
+    
+    if(_wait_TWCR(TWINT, 0x08, 1)) return 1;
 
     TWDR = (OLED_ADDRESS << 1);  // Send address
-	TWCR = TWCR_CONFIG;
+    TWCR = TWCR_CONFIG;
 
-	if(_wait_TWCR(TWINT, 0x18, 1)) return 2;
+    if(_wait_TWCR(TWINT, 0x18, 1)) return 2;
 
     return 0;
 }
@@ -112,7 +112,7 @@ uint8_t i2c_start(void) {
 void i2c_stop(void) {
     TWCR = TWCR_CONFIG | (1 << TWSTO);  // Send STOP
 
-	_wait_TWCR(TWSTO, 0, 0);	// We don't care about the return value
+    _wait_TWCR(TWSTO, 0, 0);    // We don't care about the return value
 }
 
 /* This function initializes the I2C (2-wire) interface and
@@ -120,28 +120,28 @@ void i2c_stop(void) {
  */
 uint8_t oled_init(){
     // I2C
-    TWBR = 16;		// Bit rate register, target is ~100 kHz
-	TWSR = 0;  		// Set prescaler to 1
-	
+    TWBR = 16;        // Bit rate register, target is ~100 kHz
+    TWSR = 0;          // Set prescaler to 1
+    
     if (i2c_start()) return 1;
 
     if(_send_command(0xD9)) return 2; // Set Pre-charge Period
-	if(_send_command(0xF1)) return 2; // -Phase 2: 15 DCLK, Phase 1: 1 DCLK
+    if(_send_command(0xF1)) return 2; // -Phase 2: 15 DCLK, Phase 1: 1 DCLK
 
-	if(_send_command(0x8D)) return 2; // Set Charge Pump
-	if(_send_command(0x14)) return 2; // -Enabled
-	
-	if(_send_command(0xDB)) return 2; // Set VCOMH Deselect Level
-	if(_send_command(0x40)) return 2; // -0.89*Vcc
+    if(_send_command(0x8D)) return 2; // Set Charge Pump
+    if(_send_command(0x14)) return 2; // -Enabled
+    
+    if(_send_command(0xDB)) return 2; // Set VCOMH Deselect Level
+    if(_send_command(0x40)) return 2; // -0.89*Vcc
 
-	if(_send_command(0xA1)) return 2; // Flip horizontally
-	if(_send_command(0xC8)) return 2; // Flip vertically
+    if(_send_command(0xA1)) return 2; // Flip horizontally
+    if(_send_command(0xC8)) return 2; // Flip vertically
 
-	if(_send_command(0xAF)) return 2; // Display ON
-	if(_send_command(0xA4)) return 2; // Use data from RAM
+    if(_send_command(0xAF)) return 2; // Display ON
+    if(_send_command(0xA4)) return 2; // Use data from RAM
 
-	if(_send_command(0x20)) return 2; // Set Memory Addressing Mode
-	if(_send_command(0x00)) return 2; // -Horizontal
+    if(_send_command(0x20)) return 2; // Set Memory Addressing Mode
+    if(_send_command(0x00)) return 2; // -Horizontal
 
     i2c_stop();
 
@@ -157,14 +157,14 @@ uint8_t oled_init(){
  */
 uint8_t oled_raw_write(uint8_t data) {
     TWDR = 0b11000000;
-	TWCR = TWCR_CONFIG;
+    TWCR = TWCR_CONFIG;
 
-	if(_wait_TWCR(TWINT, 0x28, 1)) return 1;
+    if(_wait_TWCR(TWINT, 0x28, 1)) return 1;
 
     TWDR = data;
     TWCR = TWCR_CONFIG;
     
-	if(_wait_TWCR(TWINT, 0x28, 1)) return 2;
+    if(_wait_TWCR(TWINT, 0x28, 1)) return 2;
 
     return 0;
 }
@@ -175,13 +175,13 @@ uint8_t oled_raw_write(uint8_t data) {
  * commands to be sent seperately.
  */
 uint8_t oled_raw_set_position(uint8_t x, uint8_t y) {
-	if(_send_command(0x21)) return 2; // Set column address
-	if(_send_command(x)) return 2; // Start at x
-	if(_send_command(0xff)) return 2; // End at 127
-	if(_send_command(0x22)) return 2; // Set page address
-	if(_send_command(y)) return 2; // Start at y
-	if(_send_command(0x07)) return 2; // End at 7
-	return 0;
+    if(_send_command(0x21)) return 2; // Set column address
+    if(_send_command(x)) return 2; // Start at x
+    if(_send_command(0xff)) return 2; // End at 127
+    if(_send_command(0x22)) return 2; // Set page address
+    if(_send_command(y)) return 2; // Start at y
+    if(_send_command(0x07)) return 2; // End at 7
+    return 0;
 }
 
 /* This function writes a fixed length number to the display
@@ -189,14 +189,14 @@ uint8_t oled_raw_set_position(uint8_t x, uint8_t y) {
  * decimal and padded with zeroes to fit the specified length.
  */
 uint8_t oled_write_num_fixed(uint32_t n, uint8_t len, uint8_t x, uint8_t y, uint8_t invert) {
-	if (i2c_start()) return 1;
+    if (i2c_start()) return 1;
 
-	if (oled_raw_set_position(x, y)) return 2;
+    if (oled_raw_set_position(x, y)) return 2;
 
-	TWDR = 0b01000000;
-	TWCR = TWCR_CONFIG;
+    TWDR = 0b01000000;
+    TWCR = TWCR_CONFIG;
 
-	if(_wait_TWCR(TWINT, 0x28, 1)) return 3;
+    if(_wait_TWCR(TWINT, 0x28, 1)) return 3;
 
     uint32_t dec = 1;
     while (--len > 0) {
@@ -205,15 +205,15 @@ uint8_t oled_write_num_fixed(uint32_t n, uint8_t len, uint8_t x, uint8_t y, uint
 
     int i = 0;
     while (dec > 0) {
-		int digit = n / dec;
-		if (digit < 0) digit = 0;
-		if (digit > 9) digit = 9;
+        int digit = n / dec;
+        if (digit < 0) digit = 0;
+        if (digit > 9) digit = 9;
         for (int j = 0; j < 6; j++) {
-			TWDR = invert ? ~numbers_lookup[digit][j] : numbers_lookup[digit][j];
-			TWCR = TWCR_CONFIG;
-			
-			if(_wait_TWCR(TWINT, 0x28, 1)) return 4;
-		}
+            TWDR = invert ? ~numbers_lookup[digit][j] : numbers_lookup[digit][j];
+            TWCR = TWCR_CONFIG;
+            
+            if(_wait_TWCR(TWINT, 0x28, 1)) return 4;
+        }
 
         n = n % dec;
         dec /= 10;
@@ -222,7 +222,7 @@ uint8_t oled_write_num_fixed(uint32_t n, uint8_t len, uint8_t x, uint8_t y, uint
 
     i2c_stop();
 
-	return 0;
+    return 0;
 }
 
 /* This function writes a string of characters to the display
@@ -231,30 +231,30 @@ uint8_t oled_write_num_fixed(uint32_t n, uint8_t len, uint8_t x, uint8_t y, uint
  * a character in the lookup table.
  */
 uint8_t oled_write_text(char *text, uint8_t x, uint8_t y, uint8_t invert) {
-	if (i2c_start()) return 1;
+    if (i2c_start()) return 1;
 
-	if (oled_raw_set_position(x, y)) return 2;
+    if (oled_raw_set_position(x, y)) return 2;
 
-	TWDR = 0b01000000;
-	TWCR = TWCR_CONFIG;
+    TWDR = 0b01000000;
+    TWCR = TWCR_CONFIG;
 
-	if(_wait_TWCR(TWINT, 0x28, 1)) return 3;
+    if(_wait_TWCR(TWINT, 0x28, 1)) return 3;
 
-	for (int i = 0; text[i] != 0; i++) {
-		int letter = text[i] - '0';
-		if (letter < 0) letter = 0;
-		if (letter > 9) letter = 9;
-		for (int j = 0; j < 6; j++) {
-			TWDR = invert ? ~letters_lookup[letter][j] : letters_lookup[letter][j];
-			TWCR = TWCR_CONFIG;
-			
-			if(_wait_TWCR(TWINT, 0x28, 1)) return 4;
-		}
-	}
+    for (int i = 0; text[i] != 0; i++) {
+        int letter = text[i] - '0';
+        if (letter < 0) letter = 0;
+        if (letter > 9) letter = 9;
+        for (int j = 0; j < 6; j++) {
+            TWDR = invert ? ~letters_lookup[letter][j] : letters_lookup[letter][j];
+            TWCR = TWCR_CONFIG;
+            
+            if(_wait_TWCR(TWINT, 0x28, 1)) return 4;
+        }
+    }
 
     i2c_stop();
 
-	return 0;
+    return 0;
 }
 
 /* This function writes a string of symbols to the display
@@ -263,28 +263,28 @@ uint8_t oled_write_text(char *text, uint8_t x, uint8_t y, uint8_t invert) {
  * a symbol in the lookup table.
  */
 uint8_t oled_write_symbol(char *symbols, uint8_t x, uint8_t y, uint8_t invert) {
-	if (i2c_start()) return 1;
+    if (i2c_start()) return 1;
 
-	if (oled_raw_set_position(x, y)) return 2;
+    if (oled_raw_set_position(x, y)) return 2;
 
-	TWDR = 0b01000000;
-	TWCR = TWCR_CONFIG;
+    TWDR = 0b01000000;
+    TWCR = TWCR_CONFIG;
 
-	if(_wait_TWCR(TWINT, 0x28, 1)) return 3;
+    if(_wait_TWCR(TWINT, 0x28, 1)) return 3;
 
-	for (int i = 0; symbols[i] != 0; i++) {
-		int symbol = symbols[i] - '0';
-		if (symbol < 0) symbol = 0;
-		if (symbol > 9) symbol = 5;
-		for (int j = 0; j < 6; j++) {
-			TWDR = invert ? ~symbols_lookup[symbol][j] : symbols_lookup[symbol][j];
-			TWCR = TWCR_CONFIG;
-			
-			if(_wait_TWCR(TWINT, 0x28, 1)) return 4;
-		}
-	}
+    for (int i = 0; symbols[i] != 0; i++) {
+        int symbol = symbols[i] - '0';
+        if (symbol < 0) symbol = 0;
+        if (symbol > 9) symbol = 5;
+        for (int j = 0; j < 6; j++) {
+            TWDR = invert ? ~symbols_lookup[symbol][j] : symbols_lookup[symbol][j];
+            TWCR = TWCR_CONFIG;
+            
+            if(_wait_TWCR(TWINT, 0x28, 1)) return 4;
+        }
+    }
 
     i2c_stop();
 
-	return 0;
+    return 0;
 }

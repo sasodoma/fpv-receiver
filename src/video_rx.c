@@ -24,29 +24,29 @@
  * to change the SYN_REG_A value.
  */
 uint32_t _freq_to_data(uint16_t freq) {
-	uint16_t f_lo_half = (freq - 479) >> 1;
-	uint32_t N = f_lo_half / 32;
-	uint8_t A = f_lo_half % 32;
-	return (N << 7) | A;
+    uint16_t f_lo_half = (freq - 479) >> 1;
+    uint32_t N = f_lo_half / 32;
+    uint8_t A = f_lo_half % 32;
+    return (N << 7) | A;
 }
 
 /* This function is used internally to write to the
  * RTC6715's configuration registers.
  */
 void _spi_write(uint32_t data, uint8_t address) {
-	// Combine the data with the RW bit and the address.
-	data = (data << 1) + 1; 		// Set RW bit to W
-	data = (data << 4) + address; 	// Set register address
+    // Combine the data with the RW bit and the address.
+    data = (data << 1) + 1;         // Set RW bit to W
+    data = (data << 4) + address;     // Set register address
 
-	setGpioLow(VIDEO_RX_CS);		// CS low
-	// Send data in four packets of 8 bits.
-	for (int i = 0; i < 4; i++) {
-		SPDR = data & 0xFF;
-		data = data >> 8;
-		/* Wait for transmission complete */
-		while(!(SPSR & (1<<SPIF)));
-	}
-	setGpioHigh(VIDEO_RX_CS);		// CS high
+    setGpioLow(VIDEO_RX_CS);        // CS low
+    // Send data in four packets of 8 bits.
+    for (int i = 0; i < 4; i++) {
+        SPDR = data & 0xFF;
+        data = data >> 8;
+        /* Wait for transmission complete */
+        while(!(SPSR & (1<<SPIF)));
+    }
+    setGpioHigh(VIDEO_RX_CS);        // CS high
 }
 
 /* This function initializes the output pins for
@@ -57,11 +57,11 @@ void _spi_write(uint32_t data, uint8_t address) {
  */
 void video_rx_init_spi() {
     // Set SS, MOSI and SCK as output.
-	DDRB = (1 << DDB2) | (1 << DDB3) | (1 << DDB5);
-	// Enable SPI, Master mode, clock /16, LSB first
-	SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0) | (1 << DORD);
-	// CS High
-	setGpioHigh(VIDEO_RX_CS);
+    DDRB = (1 << DDB2) | (1 << DDB3) | (1 << DDB5);
+    // Enable SPI, Master mode, clock /16, LSB first
+    SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0) | (1 << DORD);
+    // CS High
+    setGpioHigh(VIDEO_RX_CS);
 }
 
 /* This function initializes the ADC and starts
@@ -70,14 +70,14 @@ void video_rx_init_spi() {
  */
 void video_rx_init_adc() {
     // Enable ADC, set prescaler to /128 for 125 kHz
-	ADCSRA = (1 << ADEN) | 0b111;
-	// Set VCC as ADC reference, select channel 0
-	ADMUX = (1 << REFS0);
-	// Start first conversion
-	ADCSRA |= (1 << ADSC);
-	while (!(ADCSRA & (1 << ADIF)));
-	// Clear ADIF flag
-	ADCSRA |= (1 << ADIF);
+    ADCSRA = (1 << ADEN) | 0b111;
+    // Set VCC as ADC reference, select channel 0
+    ADMUX = (1 << REFS0);
+    // Start first conversion
+    ADCSRA |= (1 << ADSC);
+    while (!(ADCSRA & (1 << ADIF)));
+    // Clear ADIF flag
+    ADCSRA |= (1 << ADIF);
 }
 
 /* This function writes a new frequency setting to
@@ -86,9 +86,9 @@ void video_rx_init_adc() {
  * when it actually changes.
  */
 void video_rx_set_frequency(uint16_t freq) {
-	// Combine the frequency data with the RW bit and the address.
+    // Combine the frequency data with the RW bit and the address.
     uint32_t data = _freq_to_data(freq);
-	_spi_write(data, SYN_REG_B);
+    _spi_write(data, SYN_REG_B);
 }
 
 /* This function reads the ADC and converts the value to

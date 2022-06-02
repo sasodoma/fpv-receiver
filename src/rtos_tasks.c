@@ -41,8 +41,8 @@ rtos_task_t task_rx_freq = {
 
 void init_rx_freq(void) {
     // RTC6715 - 3 wire SPI
-	video_rx_init_spi();
-	video_rx_set_frequency(freq);
+    video_rx_init_spi();
+    video_rx_set_frequency(freq);
 }
 
 void driver_rx_freq(void) {
@@ -88,17 +88,17 @@ rtos_task_t task_oled = {
 };
 
 void init_oled() {
-	if(oled_init()) {
-		while(1);
-	}
+    if(oled_init()) {
+        while(1);
+    }
 
     if (i2c_start()) {
-		while(1);
-	}
+        while(1);
+    }
 
-	for (int i = 0; i < 1024; i++) {
-		oled_raw_write(0);
-	}
+    for (int i = 0; i < 1024; i++) {
+        oled_raw_write(0);
+    }
 
     // Fill in some blank spaces so it looks better
     int fill_coords[] = {0,25,26,88,113,114,115,-1};
@@ -108,13 +108,13 @@ void init_oled() {
         oled_raw_write(0xFF);
     }
 
-	i2c_stop();
+    i2c_stop();
 
     // Write the top row text
     oled_write_num_fixed(freq, 4, 1, 0, 1);
     oled_write_num_fixed(rssi, 2, 128-6*2, 0, 1);
-	oled_write_text("649", 27, 0, 1);
-	oled_write_text("7885", 89, 0, 1);
+    oled_write_text("649", 27, 0, 1);
+    oled_write_text("7885", 89, 0, 1);
 
     // Write the channel numbers
     for (int i = 1; i < 9; i++) {
