@@ -226,7 +226,7 @@ uint8_t oled_write_num_fixed(uint32_t n, uint8_t len, uint8_t x, uint8_t y, uint
 }
 
 /* This function writes a string of characters to the display
- * at the specified coordintes. The only valid characters in 
+ * at the specified coordinates. The only valid characters in 
  * the input string are numeric and each digit represents 
  * a character in the lookup table.
  */
@@ -258,7 +258,7 @@ uint8_t oled_write_text(char *text, uint8_t x, uint8_t y, uint8_t invert) {
 }
 
 /* This function writes a string of symbols to the display
- * at the specified coordintes. The only valid characters in 
+ * at the specified coordinates. The only valid characters in 
  * the input string are numeric 0-5 and each digit represents 
  * a symbol in the lookup table.
  */
