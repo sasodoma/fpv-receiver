@@ -13,7 +13,7 @@ uint8_t oled_write_text(char *text, uint8_t x, uint8_t y, uint8_t invert);
 uint8_t oled_write_symbol(char *symbols, uint8_t x, uint8_t y, uint8_t invert);
 
 /* Macros for symbols, can be concatenated. For example:
- * OLED_A OLED_B OLED_C is equal to "012", which can be
+ * OLED_A OLED_B OLED_E is equal to "012", which can be
  * used for oled_write_text().
  */ 
 #define OLED_A  "0"
