@@ -105,7 +105,7 @@ uint8_t i2c_start(void) {
 }
 
 /* This function is used to end an I2C transaction.
- * It sends a STOP condition. There is not ACK for the STOP
+ * It sends a STOP condition. There is no ACK for the STOP
  * condition, so the function simply waits for the interface
  * to finish transmitting and then it returns.
  */
