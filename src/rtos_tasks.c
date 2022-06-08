@@ -183,6 +183,11 @@ void driver_buttons() {
     if (button_press & 8) rx_band = rx_band < 4 ? rx_band + 1 : 0;
 
     freq = bandplan[rx_band][rx_channel];
+
+    /* If all buttons are pressed, create a 1 second delay
+     * to test the RTOS error state.
+     */
+    if (buttons_get_state() == 0xf) _delay_ms(1000);
 }
 
 
