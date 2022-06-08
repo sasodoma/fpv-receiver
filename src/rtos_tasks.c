@@ -149,17 +149,22 @@ void driver_oled() {
     static uint8_t old_rx_band = 0;
     static uint8_t old_rx_channel = 0;
     static uint8_t old_rssi = 0;
+
+    uint8_t error = 0;
     if (rx_band != old_rx_band || rx_channel != old_rx_channel) {
-        oled_write_num_fixed(freq, 4, 1, 0, 1);
-        oled_write_symbol(OLED_SMALL_DOT, 24 + 12*old_rx_channel, 2 + old_rx_band, 0);
-        oled_write_symbol(OLED_LARGE_DOT, 24 + 12*rx_channel, 2 + rx_band, 0);
+        error |= oled_write_num_fixed(freq, 4, 1, 0, 1);
+        error |= oled_write_symbol(OLED_SMALL_DOT, 24 + 12*old_rx_channel, 2 + old_rx_band, 0);
+        error |= oled_write_symbol(OLED_LARGE_DOT, 24 + 12*rx_channel, 2 + rx_band, 0);
         old_rx_band = rx_band;
         old_rx_channel = rx_channel;
     }
     if (rssi != old_rssi) {
-        oled_write_num_fixed(rssi, 2, 128-6*2, 0, 1);
+        error |= oled_write_num_fixed(rssi, 2, 128-6*2, 0, 1);
         old_rssi = rssi;
     }
+
+    // Cause an error if any write commands failed.
+    if (error) _delay_ms(1000);
 }
 
 
